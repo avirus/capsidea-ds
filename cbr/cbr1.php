@@ -6,6 +6,7 @@ function askhost($url,  $tmoutms = 8000) {
 	curl_setopt($fp, CURLOPT_RETURNTRANSFER, TRUE);
 	curl_setopt($fp, CURLOPT_NOPROGRESS, TRUE);
 	curl_setopt($fp, CURLOPT_TIMEOUT, ($tmoutms/1000));
+	//curl_setopt($fp, CURLOPT_VERBOSE, TRUE);
 	$data = curl_exec($fp);
 	curl_close($fp);
 	return $data;
@@ -36,11 +37,11 @@ foreach($xml->Record as $item) {
 	$kval=(string)$item->Value;
 	$kq=(string)$item->Nominal;
 	$kval=floatval(str_replace(",", ".", $kval))/$kq;
-	//echo "$kdate: $kval\n";
+	//echo "$kdate: $kval\n"; // debug
 	$kurs[$kdate][$value]=array('price'=>$kval);
 } // foreach record
 } // foreach curr
-//print_r($kurs)
+//print_r($kurs) // debug
 $fname="/var/www/slavik/data/tmp/cbr_".rand(1000000, 9999999).".csv";
 $fp=fopen("$fname", "w");
 fwrite($fp, "DATE");
@@ -58,31 +59,44 @@ foreach ($kurs as $key => $item)
 	foreach ($selected as $kid => $kname)
 	{
 		if (!isset($item[$kname])) $val="NULL"; else $val=$item[$kname]["price"];
-		
-		//print_r($val);
+		//print_r($val); // debug
 		fwrite($fp, ",$val");
 	} // for
 	fwrite($fp, "\n");
 }// foreach kurs
 fclose($fp);
-//$zip = new ZipArchive();
+//$zip = new ZipArchive(); // zip support, for future use
 //$filename = $fname.".zip";
 //if ($zip->open($filename, ZIPARCHIVE::CREATE)!==TRUE) {	die("cant open <$filename>\n");}
 //$zip->addFile($fname);
 //$zip->close();
-
 //$file_name_with_full_path = realpath("$fname");
 $post = array('extra_info' => '123456','file_contents'=>'@'.$fname);
 $ch = curl_init();
-$url="http://91.225.218.179:8080/capsidea/api?s=ImportService&delimeter=,&nullstr=NULL&withheader=1&name=currency";
+$url="http://alpha.capsidea.com/api?s=ImportService&delimeter=,&nullstr=NULL&withheader=1&name=currency";
 curl_setopt($ch, CURLOPT_URL,$url);
 curl_setopt($ch, CURLOPT_POST,1);
+//curl_setopt($ch, CURLOPT_HEADER,1);
+//curl_setopt($ch, CURLINFO_HEADER_OUT,1);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array("appid: 182","sig: $secret"));
 curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 $result=curl_exec ($ch);
 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close ($ch);
 if (500!=$httpcode) {
+if (isset($_POST["element_4_1"])) {
+	//save autoupdate
+	$jsonres=json_decode($result, true);
+$key=$jsonres["Key"];		
+	$pg_host="host=capsidea port=1 dbname=cbr user=p password=c connect_timeout=30";
+	$dbconn = pg_connect($pg_host)
+	or die('Could not connect: ' . pg_last_error());
+	$sdata=base64_encode(serialize($selected));
+	@pg_query("delete from updates where ikey=$key");
+	@pg_query("insert into updates (ikey, ival, idate ) values ($key, '$sdata', CURRENT_TIMESTAMP);");
+	//$err=$result."<br>delete from updates where ikey=$key<br>insert into updates (ikey, ival, idate ) values ($key, '$sdata', CURRENT_TIMESTAMP);<br>".pg_last_error()."\n";
+}
 echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
 <html xmlns=\"http://www.w3.org/1999/xhtml\">
 <head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">
@@ -90,27 +104,11 @@ echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://
 <link rel=\"stylesheet\" type=\"text/css\" href=\"view.css\" media=\"all\">
 </head><body id=\"main_body\" ><img id=\"top\" src=\"top.png\" alt=\"\"><div id=\"form_container\">
 <h1><a>Source created</a></h1>
-<form id=\"form_764903\" class=\"appnitro\"  method=\"post\" action=\"form.html?token=$token\">
-
-<li class=\"buttons\"><input type=\"hidden\" name=\"form_id\" value=\"764903\" />
-<input id=\"saveForm\" class=\"button_text\" type=\"submit\" name=\"Create one more\" value=\"Submit\" /></li></ul></form><div id=\"footer\">                                                                                                                                                             
+<a href=\"form.html?token=$token\">Create one more</a><br>RES: $err
+<div id=\"footer\">
 </div></div><img id=\"bottom\" src=\"bottom.png\" alt=\"\"></body></html>";
-if (!isset($_POST["element_4_1"])) {
-	//save autoupdate
-	$jsonres=json_decode($result, true);
-$key=$jsonres['key'];		
-	$pg_host="host=0.0.0.0 port=0 dbname=srvstat user=postgres password=capsidea connect_timeout=30";
-	$dbconn = pg_connect($pg_host)
-	or die('Could not connect: ' . pg_last_error());
-	$sdata=base64_encode(serialize($selected));
-	pg_query("delete from updates where ikey=$key");
-	pg_query("insert into updates (ikey, ival, idate ) values ($key, \"$sdata\", CURRENT_TIMESTAMP);");
-		
-}
-
-
-
+//echo $url.$httpcode.$result;
 die;}
-else {echo "ERR<br> debug info:";echo $result;die;} 
+else {echo "<br>ERROR<br> debug info:";echo $result;die;} 
 
 ?>

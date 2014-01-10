@@ -74,7 +74,7 @@ fclose($fp);
 //$file_name_with_full_path = realpath("$fname");
 $post = array('extra_info' => '123456','file_contents'=>'@'.$fname);
 $ch = curl_init();
-$url=urlencode("http://91.225.218.179:8080/capsidea/api?s=ImportService&delimeter=,&nullstr=NULL&withheader=1&name=currency");
+$url="http://91.225.218.179:8080/capsidea/api?s=ImportService&delimeter=,&nullstr=NULL&withheader=1&name=currency";
 curl_setopt($ch, CURLOPT_URL,$url);
 curl_setopt($ch, CURLOPT_POST,1);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array("appid: 182","sig: $secret"));

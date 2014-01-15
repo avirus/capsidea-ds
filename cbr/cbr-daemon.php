@@ -1,9 +1,7 @@
 <?php 
 // cbr autofetcher $Author: slavik $ 
-
 include_once 'cbr-inc.php';
 $secret=sha1($capsidea_client_secret.$capsidea_permanent_access_token);
-//:TODO make autoupdate https://docs.google.com/document/d/1NifHVKaVaikNhs_UR-5Fhi91vA46UHYsMIci5FE-UYE/pub
 $dbconn = pg_connect($pg_host) //defintd in cbr-inc.php
 or die('Could not connect: ' . pg_last_error());
 $res=pg_query("select ikey, ival, idate from updates;");
@@ -27,7 +25,7 @@ while ($row = pg_fetch_row($res)) {
 		} // foreach record
 	} // foreach curr
 	$fname=create_csv_file($selected, $kurs,$currency);
-	$host_reply=askhost($server_url, array('extra_info' => '123456','file_contents'=>'@'.$fname),"","","",8000,array("appid: $capsidea_appid","sig: $secret"),true);// defined in cbr-inc.php
+	$host_reply=askhost($server_url."schemakey=".$row[0], array('extra_info' => '123456','file_contents'=>'@'.$fname),"","","",8000,array("appid: $capsidea_appid","sig: $secret"),true);// defined in cbr-inc.php
 	$result=$host_reply["data"];
 	if (500==$host_reply["httpcode"]) {
 		echo "ERR: $result\n".$host_reply["httpcode"];

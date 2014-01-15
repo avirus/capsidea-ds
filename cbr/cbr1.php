@@ -1,32 +1,17 @@
 <?php
-// cbr fetcher $Author: slavik $ 
-function askhost($url,  $tmoutms = 8000) {
-	$fp=curl_init();
-	curl_setopt($fp, CURLOPT_URL, $url);
-	curl_setopt($fp, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($fp, CURLOPT_NOPROGRESS, TRUE);
-	curl_setopt($fp, CURLOPT_TIMEOUT, ($tmoutms/1000));
-	//curl_setopt($fp, CURLOPT_VERBOSE, TRUE);
-	$data = curl_exec($fp);
-	curl_close($fp);
-	return $data;
-};
+// cbr fetcher $Author: slavik $
+include_once 'cbr-inc.php'; 
 $ref=$_SERVER['HTTP_REFERER'];
 $token=substr($ref, (strpos($ref, "token=")+6));
-$secret=sha1("55c1a309-45d6-475d-be95-b41f86f7bd71".$token);
+$secret=sha1($capsidea_client_secret.$token);
 
-$currency=array("R01235" => "US Dollar", "R01010" => "Australian Dollar", "R01239" => "Euro",
-		"R01820" => "Japanese Yen",	"R01035" => "British Pound Sterling","R01375" => "China Yuan",
-		"R01115" => "Brazil Real",	"R01270" => "Indian Rupee",	"R01815" => "South Korean Won",	"R01350" => "Canadian Dollar");
+include_once 'cbr-inc.php'; 
 //prepare parameters
 $selected=array();
 for ($i=1;$i<10;$i++){	if (isset($_POST["element_3_$i"])) $selected[$i]= $_POST["element_3_$i"];}
 //print_r($selected); //debug
 $date1=sprintf("%02d",$_POST["element_1_1"])."/".sprintf("%02d",$_POST["element_1_2"])."/".$_POST["element_1_3"];
 $date2=sprintf("%02d",$_POST["element_2_1"])."/".sprintf("%02d",$_POST["element_2_2"])."/".$_POST["element_2_3"];
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-$kurs=array();
 //print_r($currency); //debug
 foreach ($selected as $key => $value) {
 	$data=askhost("http://www.cbr.ru/scripts/XML_dynamic.asp?date_req1=$date1&date_req2=$date2&VAL_NM_RQ=$value");
@@ -42,60 +27,22 @@ foreach($xml->Record as $item) {
 } // foreach record
 } // foreach curr
 //print_r($kurs) // debug
-$fname="/var/www/slavik/data/tmp/cbr_".rand(1000000, 9999999).".csv";
-$fp=fopen("$fname", "w");
-fwrite($fp, "DATE");
-foreach ($selected as $key => $value) {
-	$kname=$currency["$value"];
-	fwrite($fp, ",$kname");
-}
-fwrite($fp, "\n");
-foreach ($kurs as $key => $item)
-{
-	$ts=strtotime($key);
-	$ts_full=date("Y-m-d H:00:00",$ts);
-	fwrite($fp, "$ts_full");
-	//print_r($item);
-	foreach ($selected as $kid => $kname)
-	{
-		if (!isset($item[$kname])) $val="NULL"; else $val=$item[$kname]["price"];
-		//print_r($val); // debug
-		fwrite($fp, ",$val");
-	} // for
-	fwrite($fp, "\n");
-}// foreach kurs
-fclose($fp);
-//$zip = new ZipArchive(); // zip support, for future use
-//$filename = $fname.".zip";
-//if ($zip->open($filename, ZIPARCHIVE::CREATE)!==TRUE) {	die("cant open <$filename>\n");}
-//$zip->addFile($fname);
-//$zip->close();
+$fname=create_csv_file($selected, $kurs,$currency);
 //$file_name_with_full_path = realpath("$fname");
-$post = array('extra_info' => '123456','file_contents'=>'@'.$fname);
-$ch = curl_init();
-$url="http://alpha.capsidea.com/api?s=ImportService&delimeter=,&nullstr=NULL&withheader=1&name=currency";
-curl_setopt($ch, CURLOPT_URL,$url);
-curl_setopt($ch, CURLOPT_POST,1);
-//curl_setopt($ch, CURLOPT_HEADER,1);
-//curl_setopt($ch, CURLINFO_HEADER_OUT,1);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array("appid: 182","sig: $secret"));
-curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-$result=curl_exec ($ch);
-$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close ($ch);
+$host_reply=askhost($server_url, array('extra_info' => '123456','file_contents'=>'@'.$fname),"","","",8000,array("appid: $capsidea_appid","sig: $secret"),true);// defined in cbr-inc.php
+$httpcode=$host_reply["httpcode"];
+$result=$host_reply["data"];
 if (500!=$httpcode) {
 if (isset($_POST["element_4_1"])) {
 	//save autoupdate
 	$jsonres=json_decode($result, true);
-$key=$jsonres["Key"];		
-	$pg_host="host=capsidea port=1 dbname=cbr user=p password=c connect_timeout=30";
-	$dbconn = pg_connect($pg_host)
+	$key=$jsonres["Key"];		
+	$dbconn = pg_connect($pg_host) //defintd in cbr-inc.php
 	or die('Could not connect: ' . pg_last_error());
 	$sdata=base64_encode(serialize($selected));
 	@pg_query("delete from updates where ikey=$key");
 	@pg_query("insert into updates (ikey, ival, idate ) values ($key, '$sdata', CURRENT_TIMESTAMP);");
-	//$err=$result."<br>delete from updates where ikey=$key<br>insert into updates (ikey, ival, idate ) values ($key, '$sdata', CURRENT_TIMESTAMP);<br>".pg_last_error()."\n";
+	$err=""; //.$result."<br>delete from updates where ikey=$key<br>insert into updates (ikey, ival, idate ) values ($key, '$sdata', CURRENT_TIMESTAMP);<br>".pg_last_error()."\n";
 }
 echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
 <html xmlns=\"http://www.w3.org/1999/xhtml\">

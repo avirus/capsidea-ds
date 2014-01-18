@@ -32,24 +32,29 @@ $fname=create_csv_file($selected, $kurs,$currency);
 $host_reply=askhost($server_url, array('extra_info' => '123456','file_contents'=>'@'.$fname),"","","",8000,array("appid: $capsidea_appid","sig: $secret"),true);// defined in cbr-inc.php
 $httpcode=$host_reply["httpcode"];
 $result=$host_reply["data"];
+$err="";
+	$jsonres=json_decode($result, true);
+	$key=$jsonres["Key"];
+	$err=$result;
 if (500!=$httpcode) {
 if (isset($_POST["element_4_1"])) {
 	//save autoupdate
-	$jsonres=json_decode($result, true);
-	$key=$jsonres["Key"];		
 	$dbconn = pg_connect($pg_host) //defintd in cbr-inc.php
 	or die('Could not connect: ' . pg_last_error());
 	$sdata=base64_encode(serialize($selected));
 	@pg_query("delete from updates where ikey=$key");
 	@pg_query("insert into updates (ikey, ival, idate ) values ($key, '$sdata', CURRENT_TIMESTAMP);");
-	$err=""; //.$result."<br>delete from updates where ikey=$key<br>insert into updates (ikey, ival, idate ) values ($key, '$sdata', CURRENT_TIMESTAMP);<br>".pg_last_error()."\n";
+	$err=$err."<br>delete from updates where ikey=$key<br>insert into updates (ikey, ival, idate ) values ($key, '$sdata', CURRENT_TIMESTAMP);<br>".pg_last_error()."\n";
 }
 echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
 <html xmlns=\"http://www.w3.org/1999/xhtml\">
 <head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">
+<script type=\"text/javascript\" src=\"http://alpha.capsidea.com/api.js\"></script>
+
 <title>Success</title>
+
 <link rel=\"stylesheet\" type=\"text/css\" href=\"view.css\" media=\"all\">
-</head><body id=\"main_body\" ><img id=\"top\" src=\"top.png\" alt=\"\"><div id=\"form_container\">
+</head><body id=\"main_body\" onload=\"CI.openSource($key)\"><img id=\"top\" src=\"top.png\" alt=\"\"><div id=\"form_container\">
 <h1><a>Source created</a></h1>
 <a href=\"form.html?token=$token\">Create one more</a><br>RES: $err
 <div id=\"footer\">

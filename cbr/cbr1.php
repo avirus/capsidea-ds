@@ -1,11 +1,8 @@
 <?php
 // cbr fetcher $Author: slavik $
 include_once 'cbr-inc.php'; 
-$ref=$_SERVER['HTTP_REFERER'];
-$token=substr($ref, (strpos($ref, "token=")+6));
-if (36!=strlen($token)) {die("token incorrect");}
-$secret=sha1($capsidea_client_secret.$token);
-include_once 'cbr-inc.php';
+$cdata=get_capsidea_data($capsidea_client_secret);
+$secret=$cdata["t"];
 include_once 'askhost.php';
 $selected=array();
 for ($i=1;$i<10;$i++){	if (isset($_POST["element_3_$i"])) $selected[$i]= $_POST["element_3_$i"];}
@@ -31,8 +28,8 @@ unlink($fname);
 $httpcode=$host_reply["httpcode"];
 $jsonres=json_decode($host_reply["data"], true);
 $key=$jsonres["Key"];
-$err=$host_reply["data"]."<br><pre>".$host_reply["d"]."</pre>";
-if (500!=$httpcode) {
+$err=$cdata["c"].$host_reply["data"]."<br><pre>".$host_reply["d"]."</pre>";
+if (200==$httpcode) {
 if (isset($_POST["element_4_1"])) {
 	//save autoupdate
 	$dbconn = pg_connect($pg_host) //defintd in cbr-inc.php
@@ -45,9 +42,10 @@ if (isset($_POST["element_4_1"])) {
 echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
 <html xmlns=\"http://www.w3.org/1999/xhtml\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">
 <script type=\"text/javascript\" src=\"http://alpha.capsidea.com/api.js\"></script><title>Success</title>
-<link rel=\"stylesheet\" type=\"text/css\" href=\"view.css\" media=\"all\">
-</head><body id=\"main_body\" onload=\"CI.openSource($key)\"><img id=\"top\" src=\"top.png\" alt=\"\"><div id=\"form_container\">
-<h1><a>Source created</a></h1><br>RES: $err <div id=\"footer\"></div></div><img id=\"bottom\" src=\"bottom.png\" alt=\"\"></body></html>";
+<link rel=\"stylesheet\" type=\"text/css\" href=\"view.css\" media=\"all\"></head><body id=\"main_body\" ";
+echo "onload=\"CI.openSource($key)\"";
+echo "><img id=\"top\" src=\"top.png\" alt=\"\"><div id=\"form_container\">
+<h1><b>Source $key created</b></h1><br>RES: $err <div id=\"footer\"></div></div><img id=\"bottom\" src=\"bottom.png\" alt=\"\"></body></html>";
 die;}
-else {echo "<br>ERROR $httpcode<br> debug info:";die;} 
+else {echo "<br>ERROR $httpcode<br>debug info: $err <br>secret:".$cdata["t"];die;} 
 ?>

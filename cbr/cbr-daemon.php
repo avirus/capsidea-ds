@@ -28,7 +28,7 @@ while ($row = pg_fetch_row($res)) {
 	$host_reply=askhost($server_url."schemakey=".$row[0], array('file_contents'=>'@'.$fname),"","","",80000,array("appid: $capsidea_appid","sig: $secret"),true);// defined in askhost.php
 	unlink($fname);
 	$result=$host_reply["data"];
-	$err=$result."\ndebug:\n".$host_reply["d"];
+	$err="secret: ".$secret."<br>response:<pre>".$host_reply["data"]."</pre>"."<br>connection debug:<pre>".$host_reply["d"]."</pre>";
 	if (500==$host_reply["httpcode"]) {
 		echo "ERR: $err\n".$host_reply["httpcode"];
 		die;

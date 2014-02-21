@@ -1,15 +1,19 @@
 <?php 
 // cbr autofetch disabler $Author: slavik $
 include_once 'cbr-inc.php';
-$ikey=$_GET["obj_key"];
 // check deleteSchema
-if (FASLE===strpos($_GET["typet"], "deleteSchema")) die("unknown method");
-// check $capsidea_client_secret 
-
-$dbconn = pg_connect($pg_host) //defintd in cbr-inc.php 
-or die('Could not connect: ' . pg_last_error());
-@pg_query("delete from updates where iapp=$capsidea_appid and ikey=$ikey;");
-
-
-
+if (FALSE===strpos($_GET["type"], "deleteSchema")) {
+	mylog("delete ERR. no method");
+	die("ERR unknown method");}
+// @todo check $capsidea_client_secret 
+$ikey=(int)$_GET["obj_key"];
+if (0==$ikey) {
+	mylog("delete ERR. no ikey");
+	die("ERR user not found");
+}
+$m = new MongoClient();
+$db = $m->currency;
+$clients_collection = $db->cbrclients;
+$clients_collection->findAndModify(array("schemakey" => $ikey), array(), null, array("remove" => true ));
+mylog("user $ikey deleted");
 ?>

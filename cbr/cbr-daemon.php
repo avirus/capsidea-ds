@@ -1,43 +1,47 @@
 <?php 
 // cbr autofetcher $Author: slavik $ 
 include_once 'cbr-inc.php';
+$m = new MongoClient();
+$db = $m->currency;
+$collection = $db->cbrlastrun;
+$this_item = $collection->findone();
+$last_ts=($this_item["ts"]);
+//echo date(DATE_ATOM,$last_ts)." last update\n";
+$date1=date("d/m/Y",$last_ts);
+$date2=date("d/m/Y");
+if ($date1==$date2) die("I wont run more than once a day\n");
+//update full dataset
+$data_collection = $db->cbr;
+$kurs=array();
+echo " download";
+$kurs=download_data_from_cbr($date1, $currency);
+// insert data to mongodb
+echo " save";
+save_array_to_mongo($kurs, $currency, $data_collection);
+$collection->update(array(),array("ts"=>time()) );
+echo " updating capsidea.com datasets:";
 $secret=sha1($capsidea_client_secret.$capsidea_permanent_access_token);
-$dbconn = pg_connect($pg_host) //defintd in cbr-inc.php
-or die('Could not connect: ' . pg_last_error());
-$res=pg_query("select ikey, ival, idate from updates where iapp=$capsidea_appid;");
-while ($row = pg_fetch_row($res)) {
-	$selected=array();
-	echo "id: $row[0]  data: $row[1] time: $row[2]\n"; // debug
-	$selected=unserialize(base64_decode($row[1]));
-	$date2=date("d/m/Y");
-	$date1=date("d/m/Y", strtotime($row[2]) );
-	foreach ($selected as $key => $value) {
-		$data=askhost("http://www.cbr.ru/scripts/XML_dynamic.asp?date_req1=$date1&date_req2=$date2&VAL_NM_RQ=$value");
-		echo $data."\n"; // debug
-		$xml = simplexml_load_string($data);
-		foreach($xml->Record as $item) {
-			$kdate=(string)$item['Date'];
-			$kval=(string)$item->Value;
-			$kq=(string)$item->Nominal;
-			$kval=floatval(str_replace(",", ".", $kval))/$kq;
-			//echo "$kdate: $kval\n"; // debug
-			$kurs[$kdate][$value]=array('price'=>$kval);
-		} // foreach record
-	} // foreach curr
-	$fname=create_csv_file($selected, $kurs,$currency);
-	$host_reply=askhost($server_url."schemakey=".$row[0], array('file_contents'=>'@'.$fname),"","","",80000,array("appid: $capsidea_appid","sig: $secret"),true);// defined in askhost.php
+$clients_collection = $db->cbrclients;
+$cursor = $clients_collection->find();
+foreach ($cursor as $this_item) {
+	$selected=unserialize(base64_decode($this_item["selected"]));
+	$schemakey=$this_item["schemakey"];
+	echo " $schemakey"; // show my progress
+	$rangeQuery = array('ts' => array( '$gt' => $last_ts, '$lt' => time() )); // select all new records
+	$kurs=load_array_from_mongo($data_collection, $rangeQuery,$selected); 
+	// save array as csv
+	$fname=save_array_as_csv($selected, $kurs);
+	$stime=get_timer();
+	$host_reply=askhost($server_url."&schemakey=".$schemakey, array('file_contents'=>'@'.$fname),"","","",80000,array("appid: $capsidea_appid","sig: $secret"),true);// defined in askhost.php
+	$capsidea_time=get_timer()-$stime;
 	unlink($fname);
 	$result=$host_reply["data"];
-	$err="secret: ".$secret."<br>response:<pre>".$host_reply["data"]."</pre>"."<br>connection debug:<pre>".$host_reply["d"]."</pre>";
-	if (500==$host_reply["httpcode"]) {
-		echo "ERR: $err\n".$host_reply["httpcode"];
+	$err="secret: $secret response: \n".$host_reply["data"]."\nconnection debug:\n".$host_reply["d"];
+	if (200!=$host_reply["httpcode"]) {
+		mylog("ERR: $err ".$host_reply["httpcode"]);
 		die;
-	} // if 500
-	echo "OK: $err\n".$host_reply["httpcode"];
-	$dbconn2 = pg_connect($pg_host); //defintd in cbr-inc.php
-	pg_query("update updates set idate=CURRENT_TIMESTAMP where ikey=".$row[0]);
-	
-} // while more rows
-
-
+	} // if !200
+	mylog("OK: $schemakey in $capsidea_time sec");
+}
+echo "complete\n";
 ?>

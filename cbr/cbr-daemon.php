@@ -1,6 +1,8 @@
 <?php 
 // cbr autofetcher $Author: slavik $ 
+include_once 'askhost.php';
 include_once 'cbr-inc.php';
+$server_url="http://beta.capsidea.com/api?s=ImportService&delimeter=,&nullstr=&reload=0&withheader=1&name=currency";
 $m = new MongoClient();
 $db = $m->currency;
 $collection = $db->cbrlastrun;
@@ -36,12 +38,12 @@ foreach ($cursor as $this_item) {
 	$capsidea_time=get_timer()-$stime;
 	unlink($fname);
 	$result=$host_reply["data"];
-	$err="secret: $secret response: \n".$host_reply["data"]."\nconnection debug:\n".$host_reply["d"];
+	$error_log="secret: $secret response: \n".$host_reply["data"]."\nconnection debug:\n".$host_reply["d"];
 	if (200!=$host_reply["httpcode"]) {
-		mylog("ERR: $err ".$host_reply["httpcode"]);
+		mylog("ERR: $error_log ".$host_reply["httpcode"]);
 		die;
 	} // if !200
 	mylog("OK: $schemakey in $capsidea_time sec");
 }
-echo "complete\n";
+echo " complete\n";
 ?>

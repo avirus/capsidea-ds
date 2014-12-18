@@ -4,12 +4,22 @@ $currency=array("R01235" => "US Dollar", "R01010" => "Australian Dollar", "R0123
 		"R01115" => "Brazil Real",	"R01270" => "Indian Rupee",	"R01815" => "South Korean Won",	"R01350" => "Canadian Dollar");
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-$server_url="http://alpha.capsidea.com/api?s=ImportService&delimeter=,&nullstr=&reload=1&withheader=1&name=currency";
+$server_url="http://beta.capsidea.com/api?s=ImportService&delimeter=,&nullstr=&reload=1&withheader=1&name=currency";
 $capsidea_appid=182;
-$capsidea_client_secret="put-here";
-$capsidea_permanent_access_token="put-here";
-$my_data_dir="/tmp";
+$capsidea_client_secret="put-your-data-here"; // put-your-data-here
+$capsidea_permanent_access_token="put-your-data-here";
+$my_data_dir="/var/www/slavik/data/tmp";
 $kurs=array();
+function get_capsidea_data2($capsidea_client_secret)
+{
+	$ret=array();
+	if (isset($_GET["token"])) {$token=$_GET["token"];} else {die ("cant find capsidea.com token, please contact application support");}
+	if (36!=strlen($token)) {die("capsidea.com token incorrect, please contact application support");}
+	$ret["c"]=$str=preg_replace('/[^A-Za-z0-9\-]/', '', $token);
+	$ret["t"]=sha1($capsidea_client_secret.$token);
+	if (isset($_GET["schemakey"])) $ret["k"]=(int)$_GET["schemakey"];
+	return $ret;
+}
 function get_capsidea_data($capsidea_client_secret)
 {
     $ret=array();
@@ -54,7 +64,7 @@ function generateuniqid(&$used, $length = 20) {
 function save_array_as_csv($selected, $kurs){
 	// save array as csv, produce header first
 	global $my_data_dir, $currency;
-	$fname=tempnam($my_data_dir,"currency_data_");
+	$fname=tempnam($my_data_dir,"currency_data_").".csv";
 	$fw=fopen($fname, "w");
 	$column_names=array();
 	foreach ($selected as $this_selected) {

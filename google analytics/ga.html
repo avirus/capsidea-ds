@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		GA
+		<meta charset="utf8"/>
+	</title>
+<!-- frontend by Alexander Larionov -->
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+	<script src="script.js"></script>
+	<script>
+		show_waiter();
+	</script>
+	<script src="http://www.google-analytics.com/analytics.js"></script>
+	<script src="hello_analytics_api_v3_auth.js"></script>
+	<script src="hello_analytics_api_v3.js"></script>
+	<script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+	<script src="http://beta.capsidea.com/api.js"></script>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body class="my_class_body">
+	<div class="auth">
+		<!-- <input type="button" id="authorize-button" onclick="handleAuthClick()" style="visibility: hidden;" value="Sign In" /> -->
+		<div id="authorize-button" onclick="handleAuthClick()" style="visibility: hidden; float: left;"></div>
+		<!-- <div id="unauth" onclick="log_out()"><img src="images/G+_Medium.png" width="150" height="55"/></div> -->
+	</div>
+		<input type="button" id="unauth" onclick="log_out()" style="visibility: hidden; margin-left: -15%;" value="Sign Out"/>
+	<div id="authGoogle" style="padding: 20px;
+left: 50%;
+top: 50%;
+margin-left: -170px;
+margin-top: -203.5px;
+position: fixed;width: 300px; visibility: hidden; background: #fff; box-shadow: 0px 0px 30px #012345; z-index: 5; border-radius: 5px;">	
+	    <button id="make-api-call-button" style="visibility: hidden; display: none">Get Sessions</button>
+	    <button id="getButton" style="display: none" >Choose account..</button>
+	    <br><br>
+	    <input type="button" id="submit" onclick="submit_form()" style="display: none; float: right;" value="Ok" />
+	    <input type="button" id="close" onclick="close_dialog()" style="float:left" value="Cancel" />
+	</div>
+	<div class="bckgrnd" id="bckgrnd" style="visibility: hidden;"></div>
+	<div class="container">
+		<div class="waiter">
+		    <div class="img"></div>
+		</div>
+		<div id="resp" style="max-width: 300px; padding: 10px; left: 35%; position: fixed; display: none; background: #fff; box-shadow: 0px 0px 30px #012345;"></div>
+		<form action="zhopa.govna" id="main_form" name="main_form">
+			<div id="head_of_form"><p>Please select date range and data structure you'd like</p><br>
+				<div id="choose_1">Date range:</div>
+					<select id="date_range" name="date_range">
+						<option id="Last_30_days" value="1">Last 30 days</option>
+						<option id="Today" value="2">Today</option>
+						<option id="Yesterday" value="3">Yesterday</option>
+						<option id="Last_Week" value="5">Last Week</option>
+						<option id="Last_Month" value="6">Last Month</option>
+					</select>
+				<br><br>
+				<div id="choose_2">Preset:</div>
+					<select id="metrics_group" name="metrics_group">
+						<option id="Custom" value="1">Custom</option>
+						<option id="Test" value="8">Test</option>
+						<option id="Ecommerce" value="2">Ecommerce</option>
+						<option id="SiteUsage" value="3">Site Usage</option>
+						<option id="Simple" value="4">Simple Google Analitycs</option>
+					</select>
+					<p style="font-size: 9pt; margin-bottom: -10px; margin-left: 100px;">Select up to 7 dimensions and 10 metrics</p>
+					<!-- <div id="wide_settings">
+						<input type="checkbox" value="wide" name="check_wide"/>Wide Settings<br>
+					</div>
+					<div id="wide_settings_block">Abracadabra!</div> -->
+			</div>
+			<div id="container_columns">
+				<div id="column_one">
+					<div class="header_of_column" id="header_dimentions">Dimentions</div>
+					<ul>
+						<div id="sh_content" class="sh_content"><img id="img_1" class="image" src="1.png" width="15" height="15" />Adwords</div>
+						<div id="points_1" class="points">
+							<div id="Adwords_1" class="Adwords">
+								<input type="checkbox" name="AdGroup">AdGroup</input>
+							</div>
+							<div id="Adwords_2" class="Adwords">
+								<input type="checkbox" name="AdSlot"/>AdSlot
+							</div>
+							<div id="Adwords_3" class="Adwords">
+								<input type="checkbox" name="AdSlotPosition"/>AdSlotPosition
+							</div>
+							<div id="Adwords_4" class="Adwords">
+								<input type="checkbox" name="AdDistributionNetwork"/>AdDistributionNetwork
+							</div>
+							<div id="Adwords_5" class="Adwords">
+								<input type="checkbox" name="AdMatchType"/>AdMatchType
+							</div>
+							<div id="Adwords_6" class="Adwords">
+								<input type="checkbox" name="AdKeywordMatchType"/>AdKeywordMatchType
+							</div>
+							<div id="Adwords_7" class="Adwords">
+								<input type="checkbox" name="AdMatchedQuery"/>AdMatchedQuery
+							</div>
+							<div id="Adwords_8" class="Adwords">
+								<input type="checkbox" name="AdPlacementDomain"/>AdPlacementDomain
+							</div>
+							<div id="Adwords_9" class="Adwords">
+								<input type="checkbox" name="AdPlacementUrl"/>AdPlacementUrl
+							</div>
+							<div id="Adwords_10" class="Adwords">
+								<input type="checkbox" name="AdFormat"/>AdFormat
+							</div>
+							<div id="Adwords_11" class="Adwords">
+								<input type="checkbox" name="AdTargetingType"/>AdTargetingType
+							</div>
+							<div id="Adwords_12" class="Adwords">
+								<input type="checkbox" name="AdTargetingOption"/>AdTargetingOption
+							</div>
+							<div id="Adwords_13" class="Adwords">
+								<input type="checkbox" name="AdDisplayUrl"/>AdDisplayUrl
+							</div>
+							<div id="Adwords_14" class="Adwords">
+								<input type="checkbox" name="AdDestinationUrl"/>AdDestinationUrl
+							</div>
+							<div id="Adwords_15" class="Adwords">
+								<input type="checkbox" name="AdwordsCustomerID"/>AdwordsCustomerID
+							</div>
+							<div id="Adwords_16" class="Adwords">
+								<input type="checkbox" name="AdwordsCampaignID"/>AdwordsCampaignID
+							</div>
+							<div id="Adwords_17" class="Adwords">
+								<input type="checkbox" name="AdwordsAdGroupID"/>AdwordsAdGroupID
+							</div>
+							<div id="Adwords_18" class="Adwords">
+								<input type="checkbox" name="AdwordsCreativeID"/>AdwordsCreativeID
+							</div>
+							<div id="Adwords_19" class="Adwords">
+								<input type="checkbox" name="AdwordsCriteriaID"/>AdwordsCriteriaID
+							</div>
+							<div id="Adwords_20" class="Adwords">
+								<input type="checkbox" name="IsTrueViewVideoAd"/>IsTrueViewVideoAd
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_2" class="sh_content"><img id="img_2" class="image" src="1.png" width="15" height="15" />Ecommerce</div>
+						<div id="points_2" class="points">
+							<div id="Ecommerce_1" class="Ecommerce">
+								<input type="checkbox" name="UserType"/>UserType
+							</div>
+							<div id="Ecommerce_2" class="Ecommerce">
+								<input type="checkbox" name="SessionCount"/>SessionCount
+							</div>
+							<div id="Ecommerce_3" class="Ecommerce">
+								<input type="checkbox" name="DaysSinceLastSession"/>DaysSinceLastSession
+							</div>
+							<div id="Ecommerce_4" class="Ecommerce">
+								<input type="checkbox" name="UserDefinedValue"/>UserDefinedValue
+							</div>
+							<div id="Ecommerce_5" class="Ecommerce">
+								<input type="checkbox" name="TransactionId"/>TransactionId
+							</div>
+							<div id="Ecommerce_6" class="Ecommerce">
+								<input type="checkbox" name="Affiliation"/>Affiliation
+							</div>
+							<div id="Ecommerce_7" class="Ecommerce">
+								<input type="checkbox" name="SessionsToTransaction"/>SessionsToTransaction
+							</div>
+							<div id="Ecommerce_8" class="Ecommerce">
+								<input type="checkbox" name="DaysToTransaction"/>DaysToTransaction
+							</div>
+							<div id="Ecommerce_9" class="Ecommerce">
+								<input type="checkbox" name="ProductSku"/>ProductSku
+							</div>
+							<div id="Ecommerce_10" class="Ecommerce">
+								<input type="checkbox" name="ProductName"/>ProductName
+							</div>
+							<div id="Ecommerce_11" class="Ecommerce">
+								<input type="checkbox" name="ProductCategory"/>ProductCategory
+							</div>
+							<div id="Ecommerce_12" class="Ecommerce">
+								<input type="checkbox" name="CurrencyCode"/>CurrencyCode
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_3" class="sh_content"><img id="img_3" class="image" src="1.png" width="15" height="15" />Event Tracking</div>
+						<div id="points_3" class="points">
+
+							<div id="EventTracking_1" class="EventTracking">
+								<input type="checkbox" name="EventCategory"/>EventCategory
+							</div>
+							<div id="EventTracking_2" class="EventTracking">
+								<input type="checkbox" name="EventAction"/>EventAction
+							</div>
+							<div id="EventTracking_3" class="EventTracking">
+								<input type="checkbox" name="EventLabel"/>EventLabel
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_4" class="sh_content"><img id="img_4" class="image" src="1.png" width="15" height="15" />Geo/Network</div>
+						<div id="points_4" class="points">
+
+							<div id="GeoNetwork_1" class="GeoNetwork">
+								<input type="checkbox" name="Continent"/>Continent
+							</div>
+							<div id="GeoNetwork_2" class="GeoNetwork">
+								<input type="checkbox" name="SubContinent"/>SubContinent
+							</div>
+							<div id="GeoNetwork_3" class="GeoNetwork">
+								<input type="checkbox" name="Country"/>Country
+							</div>
+							<div id="GeoNetwork_4" class="GeoNetwork">
+								<input type="checkbox" name="Region"/>Region
+							</div>
+							<div id="GeoNetwork_5" class="GeoNetwork">
+								<input type="checkbox" name="Metro"/>Metro
+							</div>
+							<div id="GeoNetwork_6" class="GeoNetwork">
+								<input type="checkbox" name="City"/>City
+							</div>
+							<div id="GeoNetwork_7" class="GeoNetwork">
+								<input type="checkbox" name="Latitude"/>Latitude
+							</div>
+							<div id="GeoNetwork_8" class="GeoNetwork">
+								<input type="checkbox" name="Longitude"/>Longitude
+							</div>
+							<div id="GeoNetwork_9" class="GeoNetwork">
+								<input type="checkbox" name="NetworkDomain"/>NetworkDomain
+							</div>
+							<div id="GeoNetwork_10" class="GeoNetwork">
+								<input type="checkbox" name="NetworkLocation"/>NetworkLocation
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_5" class="sh_content"><img id="img_5" class="image" src="1.png" width="15" height="15" />Goal Conversions</div>
+						<div id="points_5" class="points">
+
+							<div id="GoalConversions_1" class="GoalConversions">
+								<input type="checkbox" name="GoalCompletionLocation"/>GoalCompletionLocation
+							</div>
+							<div id="GoalConversions_2" class="GoalConversions">
+								<input type="checkbox" name="GoalPreviousStep1"/>GoalPreviousStep1
+							</div>
+							<div id="GoalConversions_3" class="GoalConversions">
+								<input type="checkbox" name="GoalPreviousStep2"/>GoalPreviousStep2
+							</div>
+							<div id="GoalConversions_4" class="GoalConversions">
+								<input type="checkbox" name="GoalPreviousStep3"/>GoalPreviousStep3
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_6" class="sh_content"><img id="img_6" class="image" src="1.png" width="15" height="15" />Internal Search</div>
+						<div id="points_6" class="points">
+
+							<div id="InternalSearch_1" class="InternalSearch">
+								<input type="checkbox" name="SearchUsed"/>SearchUsed
+							</div>
+							<div id="InternalSearch_2" class="InternalSearch">
+								<input type="checkbox" name="SearchKeyword"/>SearchKeyword
+							</div>
+							<div id="InternalSearch_3" class="InternalSearch">
+								<input type="checkbox" name="SearchKeywordRefinement"/>SearchKeywordRefinement
+							</div>
+							<div id="InternalSearch_4" class="InternalSearch">
+								<input type="checkbox" name="SearchCategory"/>SearchCategory
+							</div>
+							<div id="InternalSearch_5" class="InternalSearch">
+								<input type="checkbox" name="SearchStartPage"/>SearchStartPage
+							</div>
+							<div id="InternalSearch_6" class="InternalSearch">
+								<input type="checkbox" name="SearchDestinationPage"/>SearchDestinationPage
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_7" class="sh_content"><img id="img_7" class="image" src="1.png" width="15" height="15" />User</div>
+						<div id="points_7" class="points">
+
+							<div id="User_1" class="User">
+								<input type="checkbox" name="UserType"/>UserType
+							</div>
+							<div id="User_2" class="User">
+								<input type="checkbox" name="SessionCount"/>SessionCount
+							</div>
+							<div id="User_3" class="User">
+								<input type="checkbox" name="DaysSinceLastSession"/>DaysSinceLastSession
+							</div>
+							<div id="User_4" class="User">
+								<input type="checkbox" name="UserDefinedValue"/>UserDefinedValue
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_8" class="sh_content"><img id="img_8" class="image" src="1.png" width="15" height="15" />Page Tracking</div>
+						<div id="points_8" class="points">
+
+							<div id="PageTracking_1" class="PageTracking">
+								<input type="checkbox" name="HostName"/>HostName
+							</div>
+							<div id="PageTracking_2" class="PageTracking">
+								<input type="checkbox" name="PagePath"/>PagePath
+							</div>
+							<div id="PageTracking_3" class="PageTracking">
+								<input type="checkbox" name="PagePathLevel1"/>PagePathLevel1
+							</div>
+							<div id="PageTracking_4" class="PageTracking">
+								<input type="checkbox" name="PagePathLevel2"/>PagePathLevel2
+							</div>
+							<div id="PageTracking_5" class="PageTracking">
+								<input type="checkbox" name="PagePathLevel3"/>PagePathLevel3
+							</div>
+							<div id="PageTracking_6" class="PageTracking">
+								<input type="checkbox" name="PagePathLevel4"/>PagePathLevel4
+							</div>
+							<div id="PageTracking_7" class="PageTracking">
+								<input type="checkbox" name="PageTitle"/>PageTitle
+							</div>
+							<div id="PageTracking_8" class="PageTracking">
+								<input type="checkbox" name="LandingPagePath"/>LandingPagePath
+							</div>
+							<div id="PageTracking_9" class="PageTracking">
+								<input type="checkbox" name="SecondPagePath"/>SecondPagePath
+							</div>
+							<div id="PageTracking_10" class="PageTracking">
+								<input type="checkbox" name="ExitPagePath"/>ExitPagePath
+							</div>
+							<div id="PageTracking_11" class="PageTracking">
+								<input type="checkbox" name="PreviousPagePath"/>PreviousPagePath
+							</div>
+							<div id="PageTracking_12" class="PageTracking">
+								<input type="checkbox" name="NextPagePath"/>NextPagePath
+							</div>
+							<div id="PageTracking_13" class="PageTracking">
+								<input type="checkbox" name="PageDepth"/>PageDepth
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_9" class="sh_content"><img id="img_9" class="image" src="1.png" width="15" height="15" />Session</div>
+						<div id="points_9" class="points">
+
+							<div id="Session_1" class="Session">
+								<input type="checkbox" name="SessionDurationBucket"/>SessionDurationBucket
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_10" class="sh_content"><img id="img_10" class="image" src="1.png" width="15" height="15" />System</div>
+						<div id="points_10" class="points">
+
+							<div id="System_1" class="System">
+								<input type="checkbox" name="FlashVersion"/>FlashVersion
+							</div>
+							<div id="System_2" class="System">
+								<input type="checkbox" name="JavaEnabled"/>JavaEnabled
+							</div>
+							<div id="System_3" class="System">
+								<input type="checkbox" name="Language"/>Language
+							</div>
+							<div id="System_4" class="System">
+								<input type="checkbox" name="ScreenColors"/>ScreenColors
+							</div>
+							<div id="System_5" class="System">
+								<input type="checkbox" name="SourcePropertyId"/>SourcePropertyId
+							</div>
+							<div id="System_6" class="System">
+								<input type="checkbox" name="SourcePropertyName"/>SourcePropertyName
+							</div>
+							<div id="System_7" class="System">
+								<input type="checkbox" name="ScreenResolution"/>ScreenResolution
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_11" class="sh_content"><img id="img_11" class="image" src="1.png" width="15" height="15" />Traffic Sources</div>
+						<div id="points_11" class="points">
+
+							<div id="TrafficSources_1" class="TrafficSources">
+								<input type="checkbox" name="RefferalPath"/>ReferralPath
+							</div>
+							<div id="TrafficSources_2" class="TrafficSources">
+								<input type="checkbox" name="FullRefferer"/>FullReferrer
+							</div>
+							<div id="TrafficSources_3" class="TrafficSources">
+								<input type="checkbox" name="Campaign"/>Campaign
+							</div>
+							<div id="TrafficSources_4" class="TrafficSources">
+								<input type="checkbox" name="Source"/>Source
+							</div>
+							<div id="TrafficSources_5" class="TrafficSources">
+								<input type="checkbox" name="Medium"/>Medium
+							</div>
+							<div id="TrafficSources_6" class="TrafficSources">
+								<input type="checkbox" name="SourceMedium"/>SourceMedium
+							</div>
+							<div id="TrafficSources_7" class="TrafficSources">
+								<input type="checkbox" name="Keyword"/>Keyword
+							</div>
+							<div id="TrafficSources_8" class="TrafficSources">
+								<input type="checkbox" name="AdContent"/>AdContent
+							</div>
+							<div id="TrafficSources_9" class="TrafficSources">
+								<input type="checkbox" name="SocialNetwork"/>SocialNetwork
+							</div>
+							<div id="TrafficSources_10" class="TrafficSources">
+								<input type="checkbox" name="HasSocialSourceRefferal"/>HasSocialSourceRefferal
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_12" class="sh_content"><img id="img_12" class="image" src="1.png" width="15" height="15" />Time</div>
+						<div id="points_12" class="points">
+
+							<div id="Time_1" class="Time">
+								<input type="checkbox" name="Date"/>Date
+							</div>
+							<div id="Time_2" class="Time">
+								<input type="checkbox" name="Year"/>Year
+							</div>
+							<div id="Time_3" class="Time">
+								<input type="checkbox" name="Month"/>Month
+							</div>
+							<div id="Time_4" class="Time">
+								<input type="checkbox" name="Week"/>Week
+							</div>
+							<div id="Time_5" class="Time">
+								<input type="checkbox" name="Day"/>Day
+							</div>
+							<div id="Time_6" class="Time">
+								<input type="checkbox" name="Hour"/>Hour
+							</div>
+							<div id="Time_7" class="Time">
+								<input type="checkbox" name="Minute"/>Minute
+							</div>
+							<div id="Time_8" class="Time">
+								<input type="checkbox" name="NthMonth"/>NthMonth
+							</div>
+							<div id="Time_9" class="Time">
+								<input type="checkbox" name="NthWeek"/>NthWeek
+							</div>
+							<div id="Time_10" class="Time">
+								<input type="checkbox" name="NthDay"/>NthDay
+							</div>
+							<div id="Time_11" class="Time">
+								<input type="checkbox" name="NthMinute"/>NthMinute
+							</div>
+							<div id="Time_12" class="Time">
+								<input type="checkbox" name="DayOfWeek"/>DayOfWeek
+							</div>
+							<div id="Time_13" class="Time">
+								<input type="checkbox" name="DayOfWeekName"/>DayOfWeekName
+							</div>
+							<div id="Time_14" class="Time">
+								<input type="checkbox" name="DateHour"/>DateHour
+							</div>
+							<div id="Time_15" class="Time">
+								<input type="checkbox" name="YearMonth"/>YearMonth
+							</div>
+							<div id="Time_16" class="Time">
+								<input type="checkbox" name="YearWeek"/>YearWeek
+							</div>
+							<div id="Time_17" class="Time">
+								<input type="checkbox" name="IsoWeek"/>IsoWeek
+							</div>
+							<div id="Time_18" class="Time">
+								<input type="checkbox" name="IsoYear"/>IsoYear
+							</div>
+							<div id="Time_19" class="Time">
+								<input type="checkbox" name="IsoYearIsoWeek"/>IsoYearIsoWeek
+							</div>
+							<div id="Time_20" class="Time">
+								<input type="checkbox" name="NthHour"/>NthHour
+							</div>
+						</div>
+					</ul>
+
+					<!-- WIDE DIMENTIONS&METRICS<ul>
+						<div id="sh_content_8"><img id="img_8" src="1.png" width="15" height="15" />Platform or Device</div>
+						<div id="points_8" class="points">
+							<input type="checkbox" value="18" id="check_18" name="check_18"/>SessionDurationBucket
+						</div>
+					</ul> -->
+				</div>
+				<div id="column_two">
+					<div class="header_of_column" id="header_metrics">Metrics</div>
+					<ul>
+						<div id="sh_content_13" class="sh_content"><img id="img_13" class="image" src="1.png" width="15" height="15"/>Adwords</div>
+						<div id="points_13" class="points">
+
+							<div id="Adwords_m_1" class="Adwords_m">
+								<input type="checkbox" name="Impressions"/>Impressions
+							</div>
+							<div id="Adwords_m_2" class="Adwords_m">
+								<input type="checkbox" name="AdClicks"/>AdClicks
+							</div>
+							<div id="Adwords_m_3" class="Adwords_m">
+								<input type="checkbox" name="AdCost"/>AdCost
+							</div>
+							<div id="Adwords_m_4" class="Adwords_m">
+								<input type="checkbox" name="CPM"/>CPM
+							</div>
+							<div id="Adwords_m_5" class="Adwords_m">
+								<input type="checkbox" name="CPC"/>CPC
+							</div>
+							<div id="Adwords_m_6" class="Adwords_m">
+								<input type="checkbox" name="CTR"/>CTR
+							</div>
+							<div id="Adwords_m_7" class="Adwords_m">
+								<input type="checkbox" name="CostPerTransaction"/>CostPerTransaction
+							</div>
+							<div id="Adwords_m_8" class="Adwords_m">
+								<input type="checkbox" name="CostPerGoalConversion"/>CostPerGoalConversion
+							</div>
+							<div id="Adwords_m_9" class="Adwords_m">
+								<input type="checkbox" name="CostPerConversion"/>CostPerConversion
+							</div>
+							<div id="Adwords_m_10" class="Adwords_m">
+								<input type="checkbox" name="RPC"/>RPC
+							</div>
+							<div id="Adwords_m_11" class="Adwords_m">
+								<input type="checkbox" name="ROI"/>ROI
+							</div>
+							<div id="Adwords_m_12" class="Adwords_m">
+								<input type="checkbox" name="Margin"/>Margin
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_14" class="sh_content"><img id="img_14" class="image" src="1.png" width="15" height="15"/>Ecommerce</div>
+						<div id="points_14" class="points">
+
+							<div id="Ecommerce_m_1" class="Ecommerce_m">
+								<input type="checkbox" name="Transactions"/>Transactions
+							</div>
+							<div id="Ecommerce_m_2" class="Ecommerce_m">
+								<input type="checkbox" name="TransactionsPerSession"/>TransactionsPerSession
+							</div>
+							<div id="Ecommerce_m_3" class="Ecommerce_m">
+								<input type="checkbox" name="TransactionRevenue"/>TransactionRevenue
+							</div>
+							<div id="Ecommerce_m_4" class="Ecommerce_m">
+								<input type="checkbox" name="RevenuePerTransaction"/>RevenuePerTransaction
+							</div>
+							<div id="Ecommerce_m_5" class="Ecommerce_m">
+								<input type="checkbox" name="TransactionRevenuePerSession"/>TransactionRevenuePerSession
+							</div>
+							<div id="Ecommerce_m_6" class="Ecommerce_m">
+								<input type="checkbox" name="TransactionShipping"/>TransactionShipping
+							</div>
+							<div id="Ecommerce_m_7" class="Ecommerce_m">
+								<input type="checkbox" name="TransactionTax"/>TransactionTax
+							</div>
+							<div id="Ecommerce_m_8" class="Ecommerce_m">
+								<input type="checkbox" name="TotalValue"/>TotalValue
+							</div>
+							<div id="Ecommerce_m_9" class="Ecommerce_m">
+								<input type="checkbox" name="ItemQuantity"/>ItemQuantity
+							</div>
+							<div id="Ecommerce_m_10" class="Ecommerce_m">
+								<input type="checkbox" name="UniquePurchases"/>UniquePurchases
+							</div>
+							<div id="Ecommerce_m_11" class="Ecommerce_m">
+								<input type="checkbox" name="RevenuePerItem"/>RevenuePerItem
+							</div>
+							<div id="Ecommerce_m_12" class="Ecommerce_m">
+								<input type="checkbox" name="ItemRevenue"/>ItemRevenue
+							</div>
+							<div id="Ecommerce_m_13" class="Ecommerce_m">
+								<input type="checkbox" name="ItemsPerPurchase"/>ItemsPerPurchase
+							</div>
+							<div id="Ecommerce_m_14" class="Ecommerce_m">
+								<input type="checkbox" name="LocalTransactionRevenue"/>LocalTransactionRevenue
+							</div>
+							<div id="Ecommerce_m_15" class="Ecommerce_m">
+								<input type="checkbox" name="LocalTransactionShipping"/>LocalTransactionShipping
+							</div>
+							<div id="Ecommerce_m_16" class="Ecommerce_m">
+								<input type="checkbox" name="LocalTransactionTax"/>LocalTransactionTax
+							</div>
+							<div id="Ecommerce_m_17" class="Ecommerce_m">
+								<input type="checkbox" name="LocalItemRevenue"/>LocalItemRevenue
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_15" class="sh_content"><img id="img_15" class="image" src="1.png" width="15" height="15"/>Event Tracking</div>
+						<div id="points_15" class="points">
+
+							<div id="EventTracking_m_1" class="EventTracking_m">
+								<input type="checkbox" name="TotalEvents"/>TotalEvents
+							</div>
+							<div id="EventTracking_m_2" class="EventTracking_m">
+								<input type="checkbox" name="UniqueEvents"/>UniqueEvents
+							</div>
+							<div id="EventTracking_m_3" class="EventTracking_m">
+								<input type="checkbox" name="EventValue"/>EventValue
+							</div>
+							<div id="EventTracking_m_4" class="EventTracking_m">
+								<input type="checkbox" name="AvgEventValue"/>AvgEventValue
+							</div>
+							<div id="EventTracking_m_5" class="EventTracking_m">
+								<input type="checkbox" name="SessionsWithEvent"/>SessionsWithEvent
+							</div>
+							<div id="EventTracking_m_6" class="EventTracking_m">
+								<input type="checkbox" name="EventsPerSessionWithEven"/>EventsPerSessionWithEven
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_16" class="sh_content"><img id="img_16" class="image" src="1.png" width="15" height="15"/>Goal Conversions</div>
+						<div id="points_16" class="points">
+
+							<div id="GoalConversions_m_1" class="GoalConversions_m">
+								<input type="checkbox" name="GoalXXStarts"/>GoalXXStarts
+							</div>
+							<div id="GoalConversions_m_2" class="GoalConversions_m">
+								<input type="checkbox" name="GoalStartsAll"/>GoalStartsAll
+							</div>
+							<div id="GoalConversions_m_3" class="GoalConversions_m">
+								<input type="checkbox" name="GoalXXCompletions"/>GoalXXCompletions
+							</div>
+							<div id="GoalConversions_m_4" class="GoalConversions_m">
+								<input type="checkbox" name="GoalCompletionsAll"/>GoalCompletionsAll
+							</div>
+							<div id="GoalConversions_m_5" class="GoalConversions_m">
+								<input type="checkbox" name="GoalXXValue"/>GoalXXValue
+							</div>
+							<div id="GoalConversions_m_6" class="GoalConversions_m">
+								<input type="checkbox" name="GoalValueAll"/>GoalValueAll
+							</div>
+							<div id="GoalConversions_m_7" class="GoalConversions_m">
+								<input type="checkbox" name="GoalValuePerSession"/>GoalValuePerSession
+							</div>
+							<div id="GoalConversions_m_8" class="GoalConversions_m">
+								<input type="checkbox" name="GoalXXConversionRate"/>GoalXXConversionRate
+							</div>
+							<div id="GoalConversions_m_9" class="GoalConversions_m">
+								<input type="checkbox" name="GoalConversionRateAll"/>GoalConversionRateAll
+							</div>
+							<div id="GoalConversions_m_10" class="GoalConversions_m">
+								<input type="checkbox" name="GoalXXAbandons"/>GoalXXAbandons
+							</div>
+							<div id="GoalConversions_m_11" class="GoalConversions_m">
+								<input type="checkbox" name="GoalAbandonsAll"/>GoalAbandonsAll
+							</div>
+							<div id="GoalConversions_m_12" class="GoalConversions_m">
+								<input type="checkbox" name="GoalXXAbandonRate"/>GoalXXAbandonRate
+							</div>
+							<div id="GoalConversions_m_13" class="GoalConversions_m">
+								<input type="checkbox" name="GoalAbandonRateAll"/>GoalAbandonRateAll
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_17" class="sh_content"><img id="img_17" class="image" src="1.png" width="15" height="15"/>Internal Search</div>
+						<div id="points_17" class="points">
+
+							<div id="InternalSearch_m_1" class="InternalSearch_m">
+								<input type="checkbox" name="SearchResultViews"/>SearchResultViews
+							</div>
+							<div id="InternalSearch_m_2" class="InternalSearch_m">
+								<input type="checkbox" name="SearchUniques"/>SearchUniques
+							</div>
+							<div id="InternalSearch_m_3" class="InternalSearch_m">
+								<input type="checkbox" name="AvgSearchResultViews"/>AvgSearchResultViews
+							</div>
+							<div id="InternalSearch_m_4" class="InternalSearch_m">
+								<input type="checkbox" name="SearchSessions"/>SearchSessions
+							</div>
+							<div id="InternalSearch_m_5" class="InternalSearch_m">
+								<input type="checkbox" name="PercentSessionsWithSearch"/>PercentSessionsWithSearch
+							</div>
+							<div id="InternalSearch_m_6" class="InternalSearch_m">
+								<input type="checkbox" name="SearchDepth"/>SearchDepth
+							</div>
+							<div id="InternalSearch_m_7" class="InternalSearch_m">
+								<input type="checkbox" name="AvgSearchDepth"/>AvgSearchDepth
+							</div>
+							<div id="InternalSearch_m_8" class="InternalSearch_m">
+								<input type="checkbox" name="SearchRefinements"/>SearchRefinements
+							</div>
+							<div id="InternalSearch_m_9" class="InternalSearch_m">
+								<input type="checkbox" name="PercentSearchRefinements"/>PercentSearchRefinements
+							</div>
+							<div id="InternalSearch_m_10" class="InternalSearch_m">
+								<input type="checkbox" name="SearchDuration"/>SearchDuration
+							</div>
+							<div id="InternalSearch_m_11" class="InternalSearch_m">
+								<input type="checkbox" name="AvgSearchDuration"/>AvgSearchDuration
+							</div>
+							<div id="InternalSearch_m_12" class="InternalSearch_m">
+								<input type="checkbox" name="SearchExits"/>SearchExits
+							</div>
+							<div id="InternalSearch_m_13" class="InternalSearch_m">
+								<input type="checkbox" name="SearchExitRate"/>SearchExitRate
+							</div>
+							<div id="InternalSearch_m_14" class="InternalSearch_m">
+								<input type="checkbox" name="SearchGoalXXConversionRate"/>SearchGoalXXConversionRate
+							</div>
+							<div id="InternalSearch_m_15" class="InternalSearch_m">
+								<input type="checkbox" name="SearchGoalConversionRateAll"/>SearchGoalConversionRateAll
+							</div>
+							<div id="InternalSearch_m_16" class="InternalSearch_m">
+								<input type="checkbox" name="GoalValueAllPerSearch"/>GoalValueAllPerSearch
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_18" class="sh_content"><img id="img_18" class="image" src="1.png" width="15" height="15"/>User</div>
+						<div id="points_18" class="points">
+
+							<div id="User_m_1" class="User_m">
+								<input type="checkbox" name="Users"/>Users
+							</div>
+							<div id="User_m_2" class="User_m">
+								<input type="checkbox" name="NewUsers"/>NewUsers
+							</div>
+							<div id="User_m_3" class="User_m">
+								<input type="checkbox" name="PercentNewSessions"/>PercentNewSessions
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_19" class="sh_content"><img id="img_19" class="image" src="1.png" width="15" height="15"/>Page Tracking</div>
+						<div id="points_19" class="points">
+
+							<div id="PageTracking_m_1" class="PageTracking_m">
+								<input type="checkbox" name="PageValue"/>PageValue
+							</div>
+							<div id="PageTracking_m_2" class="PageTracking_m">
+								<input type="checkbox" name="Entrances"/>Entrances
+							</div>
+							<div id="PageTracking_m_3" class="PageTracking_m">
+								<input type="checkbox" name="EntranceRate"/>EntranceRate
+							</div>
+							<div id="PageTracking_m_4" class="PageTracking_m">
+								<input type="checkbox" name="Pageviews"/>Pageviews
+							</div>
+							<div id="PageTracking_m_5" class="PageTracking_m">
+								<input type="checkbox" name="PageviewsPerSession"/>PageviewsPerSession
+							</div>
+							<div id="PageTracking_m_6" class="PageTracking_m">
+								<input type="checkbox" name="UniquePageviews"/>UniquePageviews
+							</div>
+							<div id="PageTracking_m_7" class="PageTracking_m">
+								<input type="checkbox" name="TimeOnPage"/>TimeOnPage
+							</div>
+							<div id="PageTracking_m_8" class="PageTracking_m">
+								<input type="checkbox" name="AvgTimeOnPage"/>AvgTimeOnPage
+							</div>
+							<div id="PageTracking_m_9" class="PageTracking_m">
+								<input type="checkbox" name="Exits"/>Exits
+							</div>
+							<div id="PageTracking_m_10" class="PageTracking_m">
+								<input type="checkbox" name="ExitRate"/>ExitRate
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_20" class="sh_content"><img id="img_20" class="image" src="1.png" width="15" height="15"/>Session</div>
+						<div id="points_20" class="points">
+
+							<div id="Session_m_1" class="Session_m">
+								<input type="checkbox" name="Sessions"/>Sessions
+							</div>
+							<div id="Session_m_2" class="Session_m">
+								<input type="checkbox" name="Bounces"/>Bounces
+							</div>
+							<div id="Session_m_3" class="Session_m">
+								<input type="checkbox" name="BounceRate"/>BounceRate
+							</div>
+							<div id="Session_m_4" class="Session_m">
+								<input type="checkbox" name="SessionDuration"/>SessionDuration
+							</div>
+							<div id="Session_m_5" class="Session_m">
+								<input type="checkbox" name="AvgSessionDuration"/>AvgSessionDuration
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_21" class="sh_content"><img id="img_21" class="image" src="1.png" width="15" height="15"/>Site Speed</div>
+						<div id="points_21" class="points">
+
+							<div id="SiteSpeed_1" class="SiteSpeed">
+								<input type="checkbox" name="PageLoadTime"/>PageLoadTime
+							</div>
+							<div id="SiteSpeed_2" class="SiteSpeed">
+								<input type="checkbox" name="PageLoadSample"/>PageLoadSample
+							</div>
+							<div id="SiteSpeed_3" class="SiteSpeed">
+								<input type="checkbox" name="AvgPageLoadTime"/>AvgPageLoadTime
+							</div>
+							<div id="SiteSpeed_4" class="SiteSpeed">
+								<input type="checkbox" name="DomainLookupTime"/>DomainLookupTime
+							</div>
+							<div id="SiteSpeed_5" class="SiteSpeed">
+								<input type="checkbox" name="AvgDomainLookupTime"/>AvgDomainLookupTime
+							</div>
+							<div id="SiteSpeed_6" class="SiteSpeed">
+								<input type="checkbox" name="PageDownloadTime"/>PageDownloadTime
+							</div>
+							<div id="SiteSpeed_7" class="SiteSpeed">
+								<input type="checkbox" name="AvgPageDownloadTime"/>AvgPageDownloadTime
+							</div>
+							<div id="SiteSpeed_8" class="SiteSpeed">
+								<input type="checkbox" name="RedirectionTime"/>RedirectionTime
+							</div>
+							<div id="SiteSpeed_9" class="SiteSpeed">
+								<input type="checkbox" name="AvgRedirectionTime"/>AvgRedirectionTime
+							</div>
+							<div id="SiteSpeed_10" class="SiteSpeed">
+								<input type="checkbox" name="ServerConnectionTime"/>ServerConnectionTime
+							</div>
+							<div id="SiteSpeed_11" class="SiteSpeed">
+								<input type="checkbox" name="AvgServerConnectionTime"/>AvgServerConnectionTime
+							</div>
+							<div id="SiteSpeed_12" class="SiteSpeed">
+								<input type="checkbox" name="ServerResponseTime"/>ServerResponseTime
+							</div>
+							<div id="SiteSpeed_13" class="SiteSpeed">
+								<input type="checkbox" name="AvgServerResponseTime"/>AvgServerResponseTime
+							</div>
+							<div id="SiteSpeed_14" class="SiteSpeed">
+								<input type="checkbox" name="SpeedMetricsSample"/>SpeedMetricsSample
+							</div>
+							<div id="SiteSpeed_15" class="SiteSpeed">
+								<input type="checkbox" name="DomInteractiveTime"/>DomInteractiveTime
+							</div>
+							<div id="SiteSpeed_16" class="SiteSpeed">
+								<input type="checkbox" name="AvgDomInteractiveTime"/>AvgDomInteractiveTime
+							</div>
+							<div id="SiteSpeed_17" class="SiteSpeed">
+								<input type="checkbox" name="DomContentLoadedTime"/>DomContentLoadedTime
+							</div>
+							<div id="SiteSpeed_18" class="SiteSpeed">
+								<input type="checkbox" name="AvgDomContentLoadedTime"/>AvgDomContentLoadedTime
+							</div>
+							<div id="SiteSpeed_19" class="SiteSpeed">
+								<input type="checkbox" name="DomLatencyMetricsSample"/>DomLatencyMetricsSample
+							</div>
+						</div>
+					</ul>
+					<ul>
+						<div id="sh_content_22" class="sh_content"><img id="img_22" class="image" src="1.png" width="15" height="15"/>Traffic Sources</div>
+						<div id="points_22" class="points">
+
+							<div id="TrafficSources_m_1" class="TrafficSources_m">
+								<input type="checkbox" name="OrganicSearches"/>OrganicSearches
+							</div>
+						</div>
+					</ul>
+				</div>
+			</div>
+			<input type="button" id="submit_form" style="margin-left: 43% !important; margin-top: 20px !important;" name="send" value="Get Data" onclick="AjaxForm('http://app.capsidea.com/ga.php')" />
+		</form>
+	</div>
+</body></html>

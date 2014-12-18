@@ -1,5 +1,5 @@
 <?php
-// cbr fetcher $Author: slavik $
+// cbr application for capsidea
 include_once 'cbr-inc.php'; 
 $cdata=get_capsidea_data($capsidea_client_secret);
 $secret=$cdata["t"];
@@ -68,7 +68,7 @@ file_put_contents("$my_data_dir/dashcbr.json", $jsondash);
 $jsondash=json_encode(json_decode($jsondash)); // strip formatting
 //$jsondash=str_replace("\"", "\\\"", $jsondash);
 // end of json construction 
-$err="secret: ".$cdata["c"]."<br>response:<pre>".$host_reply["data"]."</pre>"."<br>connection debug:<pre>".$host_reply["d"]."</pre>";
+$error_log="secret: ".$cdata["c"]."<br>response:<pre>".$host_reply["data"]."</pre>"."<br>connection debug:<pre>".$host_reply["d"]."</pre>";
 if (200==$httpcode) {
 if (isset($_POST["element_4_1"])) {	// autoupdate?
 	$sdata=base64_encode(serialize($selected));
@@ -77,16 +77,16 @@ if (isset($_POST["element_4_1"])) {	// autoupdate?
 } // autoupdate?
 echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">
 <html xmlns=\"http://www.w3.org/1999/xhtml\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">
-<script type=\"text/javascript\" src=\"http://alpha.capsidea.com/api.js\"></script>";
-echo "<script>CI.createDashboard($jsondash);CI.updateSource($key);CI.closeApp();</script>";	
+<script type=\"text/javascript\" src=\"http://beta.capsidea.com/api.js\"></script>";
+echo "<script>CI.updateSource($key);CI.createDashboard($jsondash);CI.closeApp();</script>";	
 echo "<title>Success</title>
 <link rel=\"stylesheet\" type=\"text/css\" href=\"view.css\" media=\"all\"></head><body id=\"main_body\" ";
 echo "><img id=\"top\" src=\"top.png\" alt=\"\"><div id=\"form_container\">
-<h1><b>Source $key created</b></h1><br>RES:  <pre>$err</pre><br><div id=\"footer\"></div></div><img id=\"bottom\" src=\"bottom.png\" alt=\"\"></body></html>";
+<h1><b>Source $key created</b></h1><br>RES:  <pre>$error_log</pre><br><div id=\"footer\"></div></div><img id=\"bottom\" src=\"bottom.png\" alt=\"\"></body></html>";
 mylog("OK: web $key in $capsidea_time sec");
 die();
 } else { // httpcode!=200
-	mylog("ERR: web $key in $capsidea_time sec \n $err");
+	mylog("ERR: web $key in $capsidea_time sec \n $error_log");
 	die();
 } 
 ?>

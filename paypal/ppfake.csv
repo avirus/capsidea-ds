@@ -1,0 +1,11 @@
+txn_lag,fee,amount,start_ts,stop_ts,status,tcode,currency,case_reason,case_status,case_money_move,due_date,case_type,case_lag,case_date,case_amount,days_before_case_closure,project,country
+0,1,1,2011-12-18 08:00:00+00,2011-12-19 08:01:05+00,Success,T0006,USD,null,null,null,null,null,null,null,null,null,null,null
+0,1,1,2011-12-18 10:00:00+00,2011-12-19 10:22:00+00,Success,T0006,USD,Merchandise,Case Closed,Debit,2014-02-04 13:07:21+00,Unauthorized Claim,15,2014-01-03 01:54:08+00,1999,0,Key,CHINA
+0,1,1,2011-12-18 10:00:00+00,2011-12-19 10:22:00+00,Success,T0006,USD,Non-receipt,Case Closed,Debit,2014-02-04 13:07:21+00,Unauthorized Claim,15,2014-01-03 01:54:08+00,1999,0,AOWKey,CHINA
+0,1,1,2011-12-18 10:00:00+00,2011-12-19 10:22:00+00,Success,T0006,USD,Not as described,Case Closed,Debit,2014-02-04 13:07:21+00,Unauthorized Claim,15,2014-01-03 01:54:08+00,1999,0,AOWKey,CHINA
+0,1,1,2011-12-18 10:00:00+00,2011-12-19 10:22:00+00,Success,T0006,USD,Inquiry,Case Closed,Debit,2014-02-04 13:07:21+00,Unauthorized Claim,15,2014-01-03 01:54:08+00,1999,0,AOWKey,CHINA
+0,1,1,2011-12-18 10:00:00+00,2011-12-19 10:22:00+00,Success,T0006,USD,Inquiry by PayPal,Case Closed,Debit,2014-02-04 13:07:21+00,Unauthorized Claim,15,2014-01-03 01:54:08+00,1999,0,AOWKey,CHINA
+0,1,1,2011-12-18 10:00:00+00,2011-12-19 10:22:00+00,Success,T0006,USD,Unauthorized payment,Case Closed,Debit,2014-02-04 13:07:21+00,Unauthorized Claim,15,2014-01-03 01:54:08+00,1999,0,AOWKey,CHINA
+0,1,1,2011-12-18 10:00:00+00,2011-12-19 10:22:00+00,Success,T0006,USD,Unauthorized,Case Closed,Debit,2014-02-04 13:07:21+00,Unauthorized Claim,15,2014-01-03 01:54:08+00,1999,0,AOWKey,CHINA
+0,1,1,2011-12-25 01:00:00+06,2011-12-26 10:22:00+00,Success,T0006,USD,Item not received,Case Closed,Debit,2014-02-04 19:07:23+06,Chargeback,34,2014-01-28 08:49:59+06,7496,0,Puti Istorii,CHINA
+0,1,1,2011-12-27 01:00:00+06,2011-12-28 10:22:00+00,Success,T0006,USD,Other,Case Closed,Debit,2014-02-04 19:07:23+06,Chargeback,34,2014-01-28 08:49:59+06,7496,0,Puti Istorii,CHINA
